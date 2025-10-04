@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d6efd">
+  <meta name="description" content="Игра: угадай породу кота · NestJS + Bootstrap">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="/styles.css" rel="stylesheet">
+</head>
+<body class="d-flex flex-column min-vh-100 animated-bg">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark" id="topbar">
+    <div class="container">
+      <a class="navbar-brand" href="/">🐱 <span data-i18n="title">Cat Quiz</span></a>
+    </div>
+  </nav>
+
+  <main class="flex-grow-1">
+    <div class="container py-5">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="card shadow-lg rounded-4 border-0">
+            <div class="card-header bg-gradient-primary text-center d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 rounded-top-4">
+              <h1 class="h4 mb-0">Угадай породу кота</h1>
+              <div class="d-flex align-items-center gap-2">
+                <select id="difficulty" class="form-select form-select-sm w-auto">
+                  <option value="easy">Легко</option>
+                  <option value="medium" selected>Нормально</option>
+                  <option value="hard">Сложно</option>
+                </select>
+                <small id="diffHint" class="text-white-50 ms-2"></small>
+                <button id="themeToggle" class="btn btn-sm btn-outline-light" data-i18n="theme">Тема</button>
+                <select id="langSelect" class="form-select form-select-sm w-auto ms-2">
+                  <option value="ru">RU</option>
+                  <option value="en">EN</option>
+                </select>
+              </div>
+            </div>
+            <div class="card-body text-center p-4 card-body-soft">
+              <!-- Экран описания игры -->
+              <div id="game-intro" class="game-intro-container">
+                <div class="intro-content">
+                  <div class="intro-icon mb-4">
+                    <i class="bi bi-heart-fill pulse-animation"></i>
+                  </div>
+                  
+                  <h2 class="intro-title mb-4 fade-in-up" data-i18n="gameTitle">Угадай породу кота!</h2>
+                  
+                  <div class="intro-description mb-4">
+                    <div class="description-item fade-in-up" style="animation-delay: 0.2s;">
+                      <i class="bi bi-camera-fill me-2"></i>
+                      <span data-i18n="description1">Посмотри на фотографию котика</span>
+                    </div>
+                    <div class="description-item fade-in-up" style="animation-delay: 0.4s;">
+                      <i class="bi bi-clock-fill me-2"></i>
+                      <span data-i18n="description2">Угадай породу за ограниченное время</span>
+                    </div>
+                    <div class="description-item fade-in-up" style="animation-delay: 0.6s;">
+                      <i class="bi bi-trophy-fill me-2"></i>
+                      <span data-i18n="description3">Набери максимальный счёт из 10 раундов</span>
+                    </div>
+                  </div>
+                  
+                  <div class="difficulty-preview mb-4 fade-in-up" style="animation-delay: 0.8s;">
+                    <div class="d-flex justify-content-center align-items-center gap-3 flex-wrap">
+                      <div class="difficulty-badge easy" data-difficulty="easy">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span data-i18n="easy">Легко</span>
+                        <small>3 варианта · 20 сек</small>
+                      </div>
+                      <div class="difficulty-badge medium selected" data-difficulty="medium">
+                        <i class="bi bi-dash-circle-fill"></i>
+                        <span data-i18n="medium">Нормально</span>
+                        <small>4 варианта · 15 сек</small>
+                      </div>
+                      <div class="difficulty-badge hard" data-difficulty="hard">
+                        <i class="bi bi-x-circle-fill"></i>
+                        <span data-i18n="hard">Сложно</span>
+                        <small>6 вариантов · 10 сек</small>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <button id="startBtn" class="btn btn-primary btn-lg start-game-btn fade-in-up" style="animation-delay: 1s;">
+                    <i class="bi bi-play-fill me-2"></i>
+                    <span data-i18n="startGame">Начать игру</span>
+                    <div class="btn-shine"></div>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Игровые контроллы (во время игры) -->
+              <div class="mb-3" id="game-controls" style="display: none;">
+                <button id="pauseBtn" class="btn btn-warning btn-lg">
+                  <i class="bi bi-pause-fill"></i> <span data-i18n="pause">Пауза</span>
+                </button>
+                <button id="resumeBtn" class="btn btn-success btn-lg" style="display: none;">
+                  <i class="bi bi-play-fill"></i> <span data-i18n="resume">Продолжить</span>
+                </button>
+              </div>
+              
+              <!-- Игровой экран -->
+              <div id="game-area" style="display: none;">
+                <div class="cat-image-container mb-3">
+                  <div id="image-loader" class="image-loader" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2" data-i18n="loading">Загружаем котика...</p>
+                  </div>
+                  <img id="cat-img" src="" alt="Котик" class="img-fluid cat-image rounded" style="display: none;">
+                </div>
+
+                <div class="progress mb-3" role="progressbar" aria-label="Время" aria-valuemin="0" aria-valuemax="100">
+                  <div id="timebar" class="progress-bar progress-bar-striped" style="width: 100%"></div>
+                </div>
+
+                <div class="row g-2" id="options"></div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                  <div><span data-i18n="round">Раунд</span>: <span id="round">1</span>/10</div>
+                  <div><span data-i18n="score">Счёт</span>: <span id="score">0</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-muted small text-center">
+              <span data-i18n="dataSource">Данные: The Cat API</span> — <a href="https://thecatapi.com/" target="_blank" rel="noopener">thecatapi.com</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <!-- Breed Info Modal -->
+<div class="modal fade" id="breedModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="breedTitle">Порода</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p id="breedDesc" class="mb-2"></p>
+        <div class="row g-2 small">
+          <div class="col">Страна: <span id="breedOrigin"></span></div>
+          <div class="col">Жизнь: <span id="breedLife"></span></div>
+          <div class="col">Характер: <span id="breedTemp"></span></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" data-bs-dismiss="modal" data-i18n="playMore">Играть дальше</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- End Game Modal -->
+<div class="modal fade" id="endModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" data-i18n="endTitle">Игра окончена!</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p id="finalText" class="lead"></p>
+        <div class="input-group mb-2">
+          <span class="input-group-text" data-i18n="name">Имя</span>
+          <input id="playerName" class="form-control" placeholder="Ваше имя">
+        </div>
+        <button id="saveScore" class="btn btn-success w-100 mb-3" data-i18n="save">Сохранить результат</button>
+        <div class="d-flex justify-content-between">
+          <a id="shareLink" class="btn btn-outline-primary" target="_blank" rel="noopener" data-i18n="share">Поделиться</a>
+          <button id="restartBtn" class="btn btn-outline-secondary" data-i18n="restart">Сыграть ещё</button>
+        </div>
+        <hr>
+        <h6 data-i18n="top10">Топ-10</h6>
+        <ul id="topList" class="list-group small"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+  <footer class="bg-dark text-white-50 py-3 mt-auto border-top border-secondary">
+    <div class="container text-center">
+      Сделано для портфолио · NestJS + Bootstrap
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/script.js"></script>
+</body>
+</html>

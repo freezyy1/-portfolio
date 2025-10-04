@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WeatherVista</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link href="styles/main.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <div class="aurora" aria-hidden="true">
+    <span class="a1"></span><span class="a2"></span><span class="a3"></span>
+  </div>
+
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 14a6 6 0 1 1 12 0v1h1a3 3 0 1 1 0 6H7a5 5 0 1 1-.21-10" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div style="font-size:18px">WeatherVista</div>
+          <div class="muted" style="font-size:12px; margin-top:-4px">портфолио‑демо</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="search">
+          <input id="q" type="search" placeholder="Найти город… (например: Berlin, Москва)" autocomplete="off"/>
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5"/></svg>
+          <div id="suggest" class="dropdown"></div>
+        </div>
+        <button id="geo" class="btn">Моё местоположение</button>
+        <button id="unit" class="btn">°C</button>
+        <button id="theme" class="btn">Тема</button>
+        <button id="save" class="btn primary">В избранное</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="card">
+        <div class="section-title">
+          <div class="row"><strong id="city">—</strong><span class="muted" id="subtitle">Выберите город</span></div>
+          <div class="favorites" id="favorites"></div>
+        </div>
+
+        <div class="current">
+          <div>
+            <div class="condition">
+              <div id="icon" class="wx" aria-hidden="true"></div>
+              <div>
+                <div class="big-temp" id="temp">—°</div>
+                <div class="muted" id="desc">—</div>
+              </div>
+            </div>
+            <div style="margin-top:12px" class="row muted feelslike" id="meta"></div>
+            <div style="margin-top:12px" class="row">
+              <div class="pill"><small>Ветер</small><div id="wind">—</div></div>
+              <div class="pill"><small>Влажн.</small><div id="humid">—</div></div>
+              <div class="pill"><small>Давл.</small><div id="press">—</div></div>
+              <div class="pill"><small>Восход</small><div id="sunrise">—</div></div>
+              <div class="pill"><small>Закат</small><div id="sunset">—</div></div>
+            </div>
+          </div>
+
+          <div class="card" style="background:rgba(255,255,255,.04)">
+            <div class="section-title">
+              <div>Качество воздуха</div>
+              <span id="aqiLabel" class="muted">—</span>
+            </div>
+            <div class="flex" style="justify-content:center">
+              <svg class="aqi" viewBox="0 0 120 120">
+                <circle class="bg" cx="60" cy="60" r="46"></circle>
+                <circle class="meter" cx="60" cy="60" r="46" stroke="var(--ok)" stroke-dasharray="289" stroke-dashoffset="289"></circle>
+              </svg>
+              <div class="aqi center"><div id="aqiValue">—</div><div class="muted" style="font-size:12px">US AQI</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="card">
+        <div class="section-title">
+          <div>Карта</div>
+          <div class="muted" id="coords">—</div>
+        </div>
+        <div id="map" class="map"></div>
+      </aside>
+
+      <section class="card">
+        <div class="section-title"><div>Почасовой прогноз</div><div class="muted" id="hourRange">—</div></div>
+        <canvas id="hourly" height="120"></canvas>
+      </section>
+
+      <section class="card">
+        <div class="section-title"><div>На 7 дней</div></div>
+        <div class="list" id="daily"></div>
+      </section>
+    </div>
+
+    <div class="footer">
+      <div>Данные: Open‑Meteo (погода) и Open‑Meteo Air Quality (AQI). Без ключей API.</div>
+      <div>Проект: <strong>WeatherVista</strong>. Сделано для портфолио.</div>
+    </div>
+  </div>
+  <div id="toast" class="toast"></div>
+</body>
+<script src="scripts/main.js"></script>
+</html>

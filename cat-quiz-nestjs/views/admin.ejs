@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Админ панель - Лидерборд</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    .admin-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    .stats-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #764ba2 100%);
+      color: white;
+    }
+    .table-container {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .trophy-icon {
+      font-size: 3rem;
+      background: linear-gradient(45deg, #ffd700, #ffed4a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  </style>
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg admin-header shadow-sm">
+    <div class="container">
+      <span class="navbar-brand mb-0 h1">
+        <i class="bi bi-shield-lock-fill me-2"></i>
+        Админ панель - Лидерборд
+      </span>
+      <form method="POST" action="/admin/logout" class="d-inline">
+        <button type="submit" class="btn btn-outline-light btn-sm">
+          <i class="bi bi-box-arrow-right"></i> Выйти
+        </button>
+      </form>
+    </div>
+  </nav>
+  
+  <div class="container py-4">
+    <!-- Статистика -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3 col-sm-6">
+        <div class="card stats-card text-center h-100">
+          <div class="card-body">
+            <div class="trophy-icon"><i class="bi bi-trophy-fill"></i></div>
+            <h5>Всего игроков</h5>
+            <h2><%= scores.length %></h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="card bg-success text-white text-center h-100">
+          <div class="card-body">
+            <i class="bi bi-people-fill" style="font-size: 2rem;"></i>
+            <h5>Сегодня</h5>
+            <h2><%= scores.filter(s => new Date(s.createdAt).toDateString() === new Date().toDateString()).length %></h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="card bg-info text-white text-center h-100">
+          <div class="card-body">
+            <i class="bi bi-bar-chart-fill" style="font-size: 2rem;"></i>
+            <h5>Средний счёт</h5>
+            <h2><%= scores.length ? Math.round(scores.reduce((sum, s) => sum + s.score, 0) / scores.length) : 0 %></h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="card bg-warning text-white text-center h-100">
+          <div class="card-body">
+            <i class="bi bi-star-fill" style="font-size: 2rem;"></i>
+            <h5>Лучший счёт</h5>
+            <h2><%= scores.length ? Math.max(...scores.map(s => s.score)) : 0 %></h2>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Фильтры -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">
+          <i class="bi bi-funnel-fill me-2"></i>Фильтры
+        </h5>
+        <form method="get" class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Уровень сложности</label>
+            <select name="difficulty" class="form-select">
+              <option value="">Все уровни</option>
+              <option value="easy" <%= difficulty==='easy'?'selected':'' %>>Легко</option>
+              <option value="medium" <%= difficulty==='medium'?'selected':'' %>>Нормально</option>
+              <option value="hard" <%= difficulty==='hard'?'selected':'' %>>Сложно</option>
+            </select>
+          </div>
+          <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-primary" type="submit">
+              <i class="bi bi-search me-1"></i>Применить
+            </button>
+            <a href="/admin/dashboard" class="btn btn-outline-secondary ms-2">
+              <i class="bi bi-arrow-clockwise me-1"></i>Сбросить
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Таблица результатов -->
+    <div class="table-container">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th class="text-center">
+                <i class="bi bi-hash me-1"></i>#
+              </th>
+              <th>
+                <i class="bi bi-person-fill me-1"></i>Имя
+              </th>
+              <th class="text-center">
+                <i class="bi bi-trophy-fill me-1"></i>Счёт
+              </th>
+              <th class="text-center">
+                <i class="bi bi-speedometer me-1"></i>Сложность
+              </th>
+              <th class="text-center">
+                <i class="bi bi-arrow-repeat me-1"></i>Раундов
+              </th>
+              <th class="text-center">
+                <i class="bi bi-calendar-event me-1"></i>Дата
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+          <% if (scores.length === 0) { %>
+            <tr>
+              <td colspan="6" class="text-center text-muted py-5">
+                <i class="bi bi-inbox" style="font-size: 3rem;"></i><br>
+                Нет данных для отображения
+              </td>
+            </tr>
+          <% } else { %>
+            <% scores.forEach((s, idx) => { %>
+              <tr <%= idx < 3 ? 'class="table-warning"' : '' %>>
+                <td class="text-center fw-bold">
+                  <% if (idx === 0) { %>
+                    <i class="bi bi-trophy-fill text-warning"></i> <%= idx + 1 %>
+                  <% } else if (idx === 1) { %>
+                    <i class="bi bi-award-fill text-secondary"></i> <%= idx + 1 %>
+                  <% } else if (idx === 2) { %>
+                    <i class="bi bi-award text-warning"></i> <%= idx + 1 %>
+                  <% } else { %>
+                    <%= idx + 1 %>
+                  <% } %>
+                </td>
+                <td class="fw-bold"><%= s.name %></td>
+                <td class="text-center">
+                  <span class="badge bg-primary fs-6"><%= s.score %></span>
+                </td>
+                <td class="text-center">
+                  <% if (s.difficulty === 'easy') { %>
+                    <span class="badge bg-success">Легко</span>
+                  <% } else if (s.difficulty === 'medium') { %>
+                    <span class="badge bg-warning">Нормально</span>
+                  <% } else { %>
+                    <span class="badge bg-danger">Сложно</span>
+                  <% } %>
+                </td>
+                <td class="text-center"><%= s.totalRounds %></td>
+                <td class="text-center text-muted small">
+                  <%= new Date(s.createdAt).toLocaleString('ru-RU') %>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Футер -->
+    <div class="mt-5 text-center">
+      <a href="/" class="btn btn-outline-primary">
+        <i class="bi bi-house-fill me-1"></i>Вернуться к игре
+      </a>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

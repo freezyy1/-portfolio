@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./catquiz.db"
+}
+
+model Score {
+  id           Int      @id @default(autoincrement())
+  name         String
+  score        Int
+  difficulty   String
+  totalRounds  Int
+  createdAt    DateTime @default(now())
+}
